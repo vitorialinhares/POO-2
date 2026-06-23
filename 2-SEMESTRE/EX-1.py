@@ -8,7 +8,7 @@ class ContaBancaria:
     def __init__(self, titular, numero, saldo):
         self.__titular = titular
         self.__numero = numero
-        
+
 
         if saldo < 0:
             self.__saldo = 0
@@ -69,16 +69,19 @@ class ContaBancaria:
 
         return duplicadas
 
+class Cliente:
+    def __init__(self, nome):
+        self.__nome = nome
 
 class BancoApp:
     def __init__(self, janela):
         self.janela = janela
         self.janela.title("Sistema Bancário - POO em Python")
         self.janela.geometry("850x400")
-
+        cliente1 = Cliente()
 
         self.contas = [
-            ContaBancaria("João", 1001, 500),
+            ContaBancaria(cliente1, 1001, 500),
             ContaBancaria("Maria", 1002, 1000),
             ContaBancaria("Pedro", 1003, 300),
             ContaBancaria("Esther", 1004, 20)
