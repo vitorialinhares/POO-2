@@ -9,20 +9,20 @@ class ContaBancaria:
         self.__titular = titular
         self.__numero = numero
 
-
         if saldo < 0:
             self.__saldo = 0
         else:
             self.__saldo = saldo
-
 
         ContaBancaria.numeros_contas.append(numero)
 
 
     def get_titular(self):
         return self.__titular
+    
     def get_numero(self):
         return self.__numero
+    
     def get_saldo(self):
         return self.__saldo
 
@@ -70,8 +70,28 @@ class ContaBancaria:
         return duplicadas
 
 class Cliente:
-    def __init__(self, nome):
+    def __init__(self, nome, cpf):
         self.__nome = nome
+        self.__cpf = cpf
+
+    def get_nome(self):
+        return self.nome
+    
+    def get_cpf(self):
+        return self.cpf
+    
+    cliente1 = Cliente("Mateus", "000.000.000-01")
+    print(cliente1.get_nome())
+    print(cliente1.get_cpf())
+
+class Endereco:
+    def __init__(self, rua, numero, bairro, cidade):
+        self.__rua = rua
+        self.__numero = numero
+        self.__bairro = bairro
+        self.__cidade = cidade
+
+
 
 class BancoApp:
     def __init__(self, janela):
@@ -81,8 +101,7 @@ class BancoApp:
         cliente1 = Cliente()
 
         self.contas = [
-            ContaBancaria(cliente1, 1001, 500),
-            ContaBancaria("Maria", 1002, 1000),
+            ContaBancaria(cliente1, 1002, 1000),
             ContaBancaria("Pedro", 1003, 300),
             ContaBancaria("Esther", 1004, 20)
         ]
