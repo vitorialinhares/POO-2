@@ -1,89 +1,80 @@
 import tkinter as tk
 from tkinter import messagebox, simpledialog
+from typing import List
 
 
 class Endereco:
-    def __init__(self, rua, numero, bairro, cidade):
+    def __init__(self, rua: str, numero: int, bairro: str, cidade: str):
         self.__rua = rua
         self.__numero = numero
         self.__bairro = bairro
         self.__cidade = cidade
-    def get_rua(self):
+    def get_rua(self) -> str:
         return self.__rua
-    def get_numero(self):
+    def get_numero(self) -> int:
         return self.__numero
-    def get_bairro(self):
+    def get_bairro(self) -> str:
         return self.__bairro
-    def get_cidade(self):
+    def get_cidade(self) -> str:
         return self.__cidade
+    def exibir_dados(self) -> str:
+        return f"{self.__rua}, {self.__numero} - {self.__bairro}, {self.__cidade}"
 
 
 class Cliente:
-    def __init__(self, nome, cpf, endereco):
+    def __init__(self, nome: str, cpf: str, endereco: Endereco):
         self.__nome = nome
         self.__cpf = cpf
         self.__endereco = endereco
-        self.__contas = []
-
-    def get_nome(self):
+        self.__contas: List['ContaBancaria'] = []
+    def get_nome(self) -> str:
         return self.__nome
-    def get_cpf(self):
+    def get_cpf(self) -> str:
         return self.__cpf
-    def get_endereco(self):
+    def get_endereco(self) -> Endereco:
         return self.__endereco
-    def adicionar_conta(self, conta):
-        self.__contas.append(conta)
+    def adicionar_conta(self, conta: 'ContaBancaria') -> None:
+        if conta not in self.__contas:
+            self.__contas.append(conta)
+    def exibir_dados(self) -> str:
+        return f"Nome: {self.__nome}\nCPF: {self.__cpf}\nEndereço: {self.__endereco.exibir_dados()}"
 
 
 class ContaBancaria:
     numeros_contas = []
 
-    def __init__(self, cliente, numero, saldo):
+    def __init__(self, cliente: Cliente, numero: str, saldo: float):
         self.__cliente = cliente
-        self.__numero = numero
-
+        self.__numero = str(numero)
         if saldo < 0:
-            self.__saldo = 0
+            self.__saldo = 0.0
         else:
-            self.__saldo = saldo
-
-        ContaBancaria.numeros_contas.append(numero)
+            self.__saldo = float(saldo)
+        ContaBancaria.numeros_contas.append(self.__numero)
         cliente.adicionar_conta(self)
 
-    def get_titular(self):
+    def get_titular(self) -> Cliente:
         return self.__cliente
-
-    def get_numero(self):
+    def get_numero(self) -> str:
         return self.__numero
-
-    def get_saldo(self):
+    def get_saldo(self) -> float:
         return self.__saldo
-
-    def depositar(self, valor):
+    def depositar(self, valor: float) -> None:
         if valor > 0:
             self.__saldo += valor
-            return True
-        return False
-
-    def sacar(self, valor):
+    def sacar(self, valor: float) -> bool:
         if valor > 0 and self.__saldo >= valor:
             self.__saldo -= valor
             return True
         return False
-
-    def transferir(self, valor, conta_destino):
-        if self.sacar(valor):
+    def transferir(self, valor: float, conta_destino: 'ContaBancaria') -> bool:
+        if valor > 0 and self.sacar(valor):
             conta_destino.depositar(valor)
             return True
         return False
-
-    def exibir_dados(self):
-        endereco = self.__cliente.get_endereco()
+    def exibir_dados(self) -> str:
         return (
-            f"Nome: {self.__cliente.get_nome()}\n"
-            f"CPF: {self.__cliente.get_cpf()}\n"
-            f"Rua: {endereco.get_rua()}\n"
-            f"Bairro: {endereco.get_bairro()}\n"
+            f"Titular: {self.__cliente.get_nome()}\n"
             f"Conta: {self.__numero}\n"
             f"Saldo: R$ {self.__saldo:.2f}"
         )
@@ -91,14 +82,13 @@ class ContaBancaria:
     @classmethod
     def existe_conta_duplicada(cls):
         return len(cls.numeros_contas) != len(set(cls.numeros_contas))
+
     @classmethod
     def contas_duplicadas(cls):
         duplicadas = []
-
         for numero in cls.numeros_contas:
             if cls.numeros_contas.count(numero) > 1 and numero not in duplicadas:
                 duplicadas.append(numero)
-
         return duplicadas
 
 
@@ -108,21 +98,21 @@ class BancoApp:
         self.janela.title("Sistema Bancário - POO em Python")
         self.janela.geometry("850x400")
 
-        end1 = Endereco("Rua A", 100, "Centro", "São Paulo")
-        cliente1 = Cliente("Mateus", "000.000.000-01", end1)
+        # Instanciação dos objetos conforme os requisitos e relacionamentos da UML
+        end1 = Endereco("Rua A", 1000, "Cohab", "Ceará-Mirim")
+        end2 = Endereco("Rua B", 123, "Centro", "Natal")
+        end3 = Endereco("Rua C", 456, "São Geraldo", "Ceará-Mirim")
 
-        end2 = Endereco("Rua B", 50, "Jardim", "São Paulo")
-        cliente2 = Cliente("Pedro", "111.111.111-11", end2)
-
-        end3 = Endereco("Rua C", 200, "Vila Nova", "São Paulo")
-        cliente3 = Cliente("Esther", "222.222.222-22", end3)
+        cliente1 = Cliente("Mateus", "100.200.300-04", end1)
+        cliente2 = Cliente("Pedro", "111.222.333-44", end2)
+        cliente3 = Cliente("Vitoria", "777.777.777-77", end3)
 
         self.contas = [
-            ContaBancaria(cliente1, 1002, 1000),
-            ContaBancaria(cliente2, 1003, 300),
-            ContaBancaria(cliente3, 1004, 20)
+            ContaBancaria(cliente1, "1002", 1000.0),
+            ContaBancaria(cliente2, "1003", 300.0),
+            ContaBancaria(cliente3, "1004", 20.0)
         ]
-
+        
         self.criar_interface()
 
     def criar_interface(self):
@@ -132,10 +122,8 @@ class BancoApp:
             font=("Arial", 18, "bold")
         )
         titulo.pack(pady=15)
-
         self.frame_contas = tk.Frame(self.janela)
         self.frame_contas.pack()
-
         self.atualizar_tela()
 
     def atualizar_tela(self):
@@ -150,23 +138,27 @@ class BancoApp:
                 pady=10
             )
             frame.pack(side="left", padx=10, pady=10)
+
             lbl_titular = tk.Label(
                 frame,
                 text=conta.get_titular().get_nome(),
                 font=("Arial", 14, "bold")
             )
             lbl_titular.pack()
+
             lbl_numero = tk.Label(
                 frame,
                 text=f"Conta: {conta.get_numero()}"
             )
             lbl_numero.pack()
+
             lbl_saldo = tk.Label(
                 frame,
                 text=f"Saldo: R$ {conta.get_saldo():.2f}",
                 font=("Arial", 12)
             )
             lbl_saldo.pack(pady=5)
+
             btn_depositar = tk.Button(
                 frame,
                 text="Depositar",
@@ -174,6 +166,7 @@ class BancoApp:
                 command=lambda c=conta: self.depositar(c)
             )
             btn_depositar.pack(pady=2)
+
             btn_sacar = tk.Button(
                 frame,
                 text="Sacar",
@@ -181,6 +174,7 @@ class BancoApp:
                 command=lambda c=conta: self.sacar(c)
             )
             btn_sacar.pack(pady=2)
+
             btn_transferir = tk.Button(
                 frame,
                 text="Transferir",
@@ -188,6 +182,7 @@ class BancoApp:
                 command=lambda c=conta: self.transferir(c)
             )
             btn_transferir.pack(pady=2)
+
             btn_dados = tk.Button(
                 frame,
                 text="Exibir Dados",
@@ -201,7 +196,8 @@ class BancoApp:
             "Digite o valor do depósito:"
         )
         if valor is not None:
-            if conta.depositar(valor):
+            if valor > 0:
+                conta.depositar(valor)
                 messagebox.showinfo(
                     "Sucesso",
                     "Depósito realizado."
@@ -228,9 +224,7 @@ class BancoApp:
                     "Erro",
                     "Saldo insuficiente ou valor inválido."
                 )
-
         self.atualizar_tela()
-
     def transferir(self, conta_origem):
         valor = simpledialog.askfloat(
             "Transferência",
@@ -238,13 +232,15 @@ class BancoApp:
         )
         if valor is None:
             return
-        numero_destino = simpledialog.askinteger(
+        numero_destino = simpledialog.askstring(
             "Transferência",
             "Digite o número da conta destino:"
         )
+        if not numero_destino:
+            return
         conta_destino = None
         for conta in self.contas:
-            if conta.get_numero() == numero_destino:
+            if conta.get_numero() == str(numero_destino):
                 conta_destino = conta
                 break
         if conta_destino is None:
@@ -259,10 +255,7 @@ class BancoApp:
                 "Não é possível transferir para a mesma conta."
             )
             return
-        if conta_origem.transferir(
-            valor,
-            conta_destino
-        ):
+        if conta_origem.transferir(valor, conta_destino):
             messagebox.showinfo(
                 "Sucesso",
                 "Transferência realizada."
@@ -272,11 +265,11 @@ class BancoApp:
                 "Erro",
                 "Saldo insuficiente ou valor inválido."
             )
-
         self.atualizar_tela()
-
-        def exibir_dados(self, conta):
-            dados = conta.exibir_dados()
+    def exibir_dados(self, conta):
+        dados = conta.exibir_dados()
+        cliente = conta.get_titular()
+        dados += f"\n\n--- Informações do Cliente ---\n{cliente.exibir_dados()}"
         if ContaBancaria.existe_conta_duplicada():
             dados += (
                 "\n\nExistem contas duplicadas."
@@ -289,8 +282,7 @@ class BancoApp:
             "Dados da Conta",
             dados
         )
-
-
-janela = tk.Tk()
-app = BancoApp(janela)
-janela.mainloop()
+if __name__ == "__main__":
+    janela = tk.Tk()
+    app = BancoApp(janela)
+    janela.mainloop()
